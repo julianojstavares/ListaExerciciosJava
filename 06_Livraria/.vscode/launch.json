@@ -1,0 +1,29 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "java",
+            "name": "Debug (Launch)-App<test-app>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            // ..........
+            "console": "externalTerminal",
+            // **********
+            "stopOnEntry": false,
+            "mainClass": "com.test.app.App",
+            "projectName": "test-app",
+            "args": ""
+        },
+        {
+            "type": "java",
+            "name": "Launch Livraria",
+            "request": "launch",
+            "mainClass": "Livraria",
+            "projectName": "Livraria_2d751794"
+        }
+    ]
+}
