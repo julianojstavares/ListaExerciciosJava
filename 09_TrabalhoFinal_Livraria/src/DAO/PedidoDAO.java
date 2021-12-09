@@ -36,24 +36,31 @@ public class PedidoDAO {
 		int result2 = 0;
 		try {
 			// insere o pedido
-			ps = DaoUtils.getConnection().prepareStatement(INSERT);
+			ps = DaoUtils.getConnection().prepareStatement(INSERT, PreparedStatement.RETURN_GENERATED_KEYS);
 			Cliente cliente = pedido.getCliente();
 			if (cliente != null) {
 				ps.setLong(1, cliente.getId());
 				ps.setLong(2, pedido.getNumero());
-				ps.setDate(3,new java.sql.Date(pedido.getDataVenda().getTime()));
+				ps.setDate(3, new java.sql.Date(pedido.getDataVenda().getTime()));
 				ps.setLong(4, pedido.getFormaPagamento().ordinal());
 				result1= ps.executeUpdate();
+				ResultSet idOrdemVenda= ps.getGeneratedKeys();
+				idOrdemVenda.next();
+				int idOV = idOrdemVenda.getInt("id");
 				ps2 = DaoUtils.getConnection().prepareStatement(INSERTITEM);
 				// insere os itens do pedido
 				for (ItemPedido item : pedido.getItens()) {
 					Livro livro = item.getLivro();
 					if (livro != null) {
-						ps2.setLong(1, pedido.getId());
+						ps2.setLong(1, idOV);
 						ps2.setLong(2, livro.getId());
-						ps2.setDouble(3, item.getPercDesconto());
 						ps2.setInt(4, item.getQuantidade());
 						result2 += ps2.executeUpdate();
+
+						Livro livroTemp = new Livro();
+						livroTemp = livroDAO.selectByPk((int) livro.getId());
+						livroTemp.setQuantidadeEstoque(livroTemp.getQuantidadeEstoque() - item.getQuantidade());
+						livroDAO.atualizar(livroTemp);
 					}
 				}
 			}
@@ -100,7 +107,6 @@ public class PedidoDAO {
 					if (livro != null) {
 						ps3.setLong(1, pedido.getId());
 						ps3.setLong(2, livro.getId());
-						ps3.setDouble(3, item.getPercDesconto());
 						ps3.setInt(4, item.getQuantidade());
 						result3 += ps3.executeUpdate();
 					}
@@ -172,7 +178,6 @@ public class PedidoDAO {
 						ItemPedido item = new ItemPedido();
 						item.setId(rsItens.getLong("id"));
 						item.setLivro(livro);
-						item.setPercDesconto(rsItens.getDouble("percDesconto"));
 						item.setQuantidade(rsItens.getInt("quantidade"));
 						itens.add(item);
 					}	
@@ -223,7 +228,6 @@ public class PedidoDAO {
 							ItemPedido item = new ItemPedido();
 							item.setId(rsItens.getLong("id"));
 							item.setLivro(livro);
-							item.setPercDesconto(rsItens.getDouble("percDesconto"));
 							item.setQuantidade(rsItens.getInt("quantidade"));
 							itens.add(item);
 						}	
